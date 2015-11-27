@@ -4,5 +4,6 @@
 int main()
 {
 	printWorking();
+	initCPU();
 	return 0;
 }

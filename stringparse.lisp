@@ -12,16 +12,26 @@
 )
   
 ;translate mnemonics into appopriate byte code  
+;TODO: be less imperative, more functional
 (defun parseLine (input) 
+	;FIRST COLUMN
 	(loop for cell in mnemonics do
 		(if (string= (subseq input 0 3) (car cell)) ;check if mnemonic matches
 			;(setq parsed (push (cdr cell) parsed))()))) ;if so add the appropriate byte code to "parsed"
 			(setq currline (concatenate 'string (cdr cell) " "))())) ;if so add the appropriate byte code to "parsed"		
+	;SECOND COLUMN
 	(if (string= (subseq input 0 3) "jmp") 
 		(setq currline (concatenate 'string currline (subseq input 4 (- (length input) 1)))) 
 		(loop for cell in registers do
 			(if (string= (subseq input 4 6) (car cell)) 
-				(setq currline (concatenate 'string currline (cdr cell))) (print (subseq input 4 6)))))
+				(setq currline (concatenate 'string currline (cdr cell))) #|(print (subseq input 4 6))|#)))
+	;THIRD COLUMN
+	(if (string= (subseq input 0 3) "mov") 
+		(setq currline (concatenate 'string currline " " (subseq input 7 15))) ())
+	(if (string= (subseq input 0 3) "cmp")
+		(loop for cell in registers do
+			(if (string= (subseq input 7 9) (car cell)) 
+				(setq currline (concatenate 'string currline " " (cdr cell))) ())))
 	(setq parsed (push currline parsed))
 	(setq currline nil)
 ) 
@@ -41,6 +51,7 @@
 (readFLine "testfile.sasm") ;read and assemble the input file
 ;(print parsed)
 (ignore-errors (delete-file (probe-file (concatenate 'string "testfile.sasm" ".o")))) ;delete the old output file, if extant so it can be recreated
+(setq parsed (reverse parsed))
 (writeout "testfile.sasm") ;write the binary to an output file
 
 ;(print (cdr (assoc "mov" mnemonics :test #'equal)))

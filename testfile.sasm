@@ -1,0 +1,4 @@
+mov ax,00000100
+inc ax
+mov bx,00000101
+cmp ax,bx
