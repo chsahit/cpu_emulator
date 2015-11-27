@@ -6,8 +6,3 @@ void printWorking()
 	printf("CPU Loaded\n");
 	return;
 }
-
-int main()
-{
-	printf("Debugging");
-}

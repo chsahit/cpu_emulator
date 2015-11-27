@@ -1,8 +1,8 @@
 Emulator: Emulator.c CPU.c
-	gcc -o Emulator Emulator.c CPU.c -I.
+	gcc -o Emulator Emulator.c CPU.o -I.
 	
 CPU: CPU.c
-	gcc -o CPU CPU.c -I.
+	gcc -c CPU.c -I. 
 	
 clean:
 	rm *.o *.exe
