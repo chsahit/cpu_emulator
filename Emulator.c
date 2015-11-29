@@ -3,7 +3,7 @@
 
 int main()
 {
-	printWorking();
-	initCPU();
+	initCPU("testfile.sasm.o");
+	executeCycle();
 	return 0;
 }
