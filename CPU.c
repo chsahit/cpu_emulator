@@ -60,7 +60,7 @@ void decode()
 		case CMP : 
 			printf("Decoded %s -> CMP",pipelineCommands[1]);
 		case INC :
-			printf("Decoded %s -> INC",pipelineCommands[1]);
+			printf("Decoded %s -> INC",pipelineCommands[1]);	
 	}
 }
 
