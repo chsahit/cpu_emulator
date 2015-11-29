@@ -34,7 +34,10 @@ void initCPU(char filename[])
 //shifts right everything in the commands array, leaving the first element null
 void shiftPipeline()
 {
-	
+	strncpy(pipelineCommands[4],pipelineCommands[3],8);
+	strncpy(pipelineCommands[3],pipelineCommands[2],8);
+	strncpy(pipelineCommands[2],pipelineCommands[1],8);
+	strncpy(pipelineCommands[1],pipelineCommands[0],8);
 }
 
 void fetch()
@@ -51,16 +54,23 @@ void fetch()
 
 void decode()
 {
-	switch(atoi(pipelineCommands[1])) {
+	//substringing the mnemonic out of the line	
+	char buf[8];
+	strncpy(buf,pipelineCommands[1],8);
+
+	switch(atoi(buf)) {
 		case MOV :
-			printf("Decode: %s -> MOV",pipelineCommands[1]);
+			printf("Decode: %s -> MOV\n",pipelineCommands[1]);
 			break;
 		case JMP :
-			printf("Decoded %s -> JMP",pipelineCommands[1]);
+			printf("Decoded %s -> JMP\n",pipelineCommands[1]);
+			break;
 		case CMP : 
-			printf("Decoded %s -> CMP",pipelineCommands[1]);
+			printf("Decoded %s -> CMP\n",pipelineCommands[1]);
+			break;
 		case INC :
-			printf("Decoded %s -> INC",pipelineCommands[1]);	
+			printf("Decoded %s -> INC\n	",pipelineCommands[1]);	
+			break;
 	}
 }
 
@@ -69,7 +79,6 @@ void executeCycle()
 {
 	shiftPipeline();
 	fetch();
-	strncpy(pipelineCommands[1],"11111110",26);
 	decode();
 }
 
