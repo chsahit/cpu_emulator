@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include "Emulator.h"
-
+#include "string.h"
+#include "math.h"
 
 int instrLine = 0;
-int memoryLookup[256][8];
+char memoryLookup[256][8] = {"0"};
 
 int getInstrLine()
 {
@@ -15,20 +16,30 @@ void setInstrLine(int line)
 	instrLine = line;
 }
 
+int binToDec(int binNum)
+{
+	int decimal=0, i=0, rem;
+    while (binNum!=0)
+    {
+        rem = binNum%10;
+        binNum/=10;
+        decimal += rem*pow(2,i);
+        ++i;
+    }
+    return decimal;
+}
+
 void getValAtAddr(int addr, char buf[9])
 {
-	strncpy(buf,memoryLookup[addr],8);
+	strncpy(buf,memoryLookup[binToDec(addr)],8);
 	buf[8] = (char)0;
 	return;
 }
 
 void setValAtAddr(int addr, char buf[9])
 {
-	strncpy(memoryLookup[addr],buf,8);
+	strncpy(memoryLookup[binToDec(addr)],buf,8);
 }
 
-int binToDec(int binNum)
-{
-	return 0;
-}
+
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "Emulator.h"
 #include "string.h"
+#include "math.h"
 
 //along the 5 rows are the commands being executed by each stage in the pipeline
 //the commands are stored as chars in the columns
@@ -76,8 +77,12 @@ void shiftPipeline()
 
 void fetch()
 {
-	fscanf(fp, "%[^\n]\n", pipelineCommands[0]);
-	printf("Fetch: %s\n",pipelineCommands[0]);
+	if(fscanf(fp, "%[^\n]\n", pipelineCommands[0]) == EOF) {
+		//printf("EOF!\n");
+		strncpy(pipelineCommands[0],"00000000",26);
+	} else {
+		printf("Fetch: %s\n",pipelineCommands[0]);
+	}
 	setInstrLine(strlen(pipelineCommands[0]) + getInstrLine());
 }
 
@@ -139,10 +144,11 @@ void execute()
 			;char valuebuf[9];
 			getValAtAddr(atoi(op1buf),valuebuf);
 			inc(valuebuf);
-			printf("XOR result %s\n",valuebuf);
+			printf("Execute: XOR result is %s\n",valuebuf);
 			break;
 	}
 }
+
 
 //simulates one clock cyle
 void executeCycle()
