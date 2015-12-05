@@ -1,5 +1,9 @@
-mov ax,00000001
-mov ax,00000100
-inc ax
-mov bx,00000101
+l   ax,00000100  
+l   bx,00000011
+nop 00000000           
+nop 00000000
+nop 00000000
+nop 00000000
+nop 00000000
+inc bx 
 cmp ax,bx

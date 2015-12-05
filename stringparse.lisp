@@ -1,7 +1,7 @@
 ;; variable initiliazation
 (defvar parsed nil) ;contains the assembled lines of code in a list
 (defvar currline nil) ;string containing the line that is currently being assembled	
-(defvar mnemonics '(("mov" . "11111111") ("jmp" . "11111110") ("cmp" . "11111101") ("inc" . "11111100"))) ;maps mnemonics to byte code
+(defvar mnemonics '(("mov" . "11111111") ("jmp" . "11111110") ("cmp" . "11111101") ("inc" . "11111100") ("l  " . "11111011") ("nop" . "11111010"))) ;maps mnemonics to byte code
 (defvar registers '(("ax" . "00000000") ("bx" . "00000001") ("cx" . "00000010") ("dx" . "00000011")))  
   
 ;writes out the assembled program into the file  
@@ -26,7 +26,7 @@
 			(if (string= (subseq input 4 6) (car cell)) 
 				(setq currline (concatenate 'string currline (cdr cell))) #|(print (subseq input 4 6))|#)))
 	;THIRD COLUMN
-	(if (string= (subseq input 0 3) "mov") 
+	(if (or (string= (subseq input 0 3) "mov") (string= (subseq input 0 3) "l  ") )
 		(setq currline (concatenate 'string currline " " (subseq input 7 15))) ())
 	(if (string= (subseq input 0 3) "cmp")
 		(loop for cell in registers do

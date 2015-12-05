@@ -13,6 +13,7 @@ enum mnemonics{
 	JMP = 11111110,
 	CMP = 11111101,
 	INC = 11111100,
+	L   = 11111011,
 };
 
 int incnum(int num)
@@ -106,6 +107,8 @@ void decode()
 		case INC :
 			printf("Decode: %s -> INC\n",pipelineCommands[1]);	
 			break;
+		case L : 
+			printf("Decode: %s -> L\n",pipelineCommands[1]);
 	}
 }	
 
@@ -135,8 +138,10 @@ void execute()
 			getValAtAddr(atoi(op2buf),value2buf);
 			if(strncmp(value1buf,value2buf,8) == 0) {
 				printf("Execute: Compare returned true, setting ZF to 1\n");
+				//printf("Execute: %s %s\n",value1buf,value2buf);
 			} else {
 				printf("Execute: Compare returned false, setting ZF to 0\n");
+				//printf("Execute: %s %s\n",value1buf,value2buf);
 			}
 			break;
 		case INC : 
@@ -145,6 +150,8 @@ void execute()
 			inc(valuebuf);
 			printf("Execute: XOR result is %s\n",valuebuf);
 			break;
+		case L:
+			printf("Execute: Load is not completed until WB\n");
 	}
 }
 
@@ -195,8 +202,20 @@ void writeBack()
 				getValAtAddr(atoi(op2buf),val1);
 				setValAtAddr(atoi(op1buf),val1);
 				printf("Register Write Back: Wrote %s to %s\n",val1,op2buf);
-			}
+			}	
+		
+		
+		case L:
+			printf("Load: Writing %s to %s\n",op2buf,op1buf);
+			char val1[9];
+			setValAtAddr(atoi(op1buf),op2buf);
+			char val2[9];
+			getValAtAddr(atoi(op1buf),val2);
+			val2[8] = "\0";
+			printf("Wrote %s\n",val2);
 	}
+	
+	
 	
 }
 
