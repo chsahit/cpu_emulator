@@ -1,7 +1,7 @@
 ;; variable initiliazation
 (defvar parsed nil) ;contains the assembled lines of code in a list
 (defvar currline nil) ;string containing the line that is currently being assembled	
-(defvar mnemonics '(("mov" . "11111111") ("jmp" . "11111110") ("cmp" . "11111101") ("inc" . "11111100") ("l  " . "11111011") ("nop" . "11111010"))) ;maps mnemonics to byte code
+(defvar mnemonics '(("MOV" . "11111111") ("JMP" . "11111110") ("CMP" . "11111101") ("INC" . "11111100") ("L  " . "11111011") ("NOP" . "11111010"))) ;maps mnemonics to byte code
 (defvar registers '(("ax" . "00000000") ("bx" . "00000001") ("cx" . "00000010") ("dx" . "00000011")))  
   
 ;writes out the assembled program into the file  
@@ -20,15 +20,15 @@
 			;(setq parsed (push (cdr cell) parsed))()))) ;if so add the appropriate byte code to "parsed"
 			(setq currline (concatenate 'string (cdr cell) " "))())) ;if so add the appropriate byte code to "parsed"		
 	;SECOND COLUMN
-	(if (string= (subseq input 0 3) "jmp") 
+	(if (string= (subseq input 0 3) "JMP") 
 		(setq currline (concatenate 'string currline (subseq input 4 (- (length input) 1)))) 
 		(loop for cell in registers do
 			(if (string= (subseq input 4 6) (car cell)) 
 				(setq currline (concatenate 'string currline (cdr cell))) #|(print (subseq input 4 6))|#)))
 	;THIRD COLUMN
-	(if (or (string= (subseq input 0 3) "mov") (string= (subseq input 0 3) "l  ") )
+	(if (or (string= (subseq input 0 3) "MOV") (string= (subseq input 0 3) "l  ") )
 		(setq currline (concatenate 'string currline " " (subseq input 7 15))) ())
-	(if (string= (subseq input 0 3) "cmp")
+	(if (string= (subseq input 0 3) "CMP")
 		(loop for cell in registers do
 			(if (string= (subseq input 7 9) (car cell)) 
 				(setq currline (concatenate 'string currline " " (cdr cell))) ())))

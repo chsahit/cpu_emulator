@@ -5,6 +5,17 @@
 
 int instrLine = 0;
 char memoryLookup[256][8];
+char lockedAddr[3][8];
+
+int isLocked()
+{
+	return 0;
+}
+
+void setLocked(int addr)
+{
+	
+}
 
 void initMem()
 {

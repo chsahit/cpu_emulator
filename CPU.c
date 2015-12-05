@@ -66,6 +66,7 @@ void initCPU(char filename[])
 	}
 }
 
+
 //shifts right everything in the commands array, leaving the first element null
 void shiftPipeline()
 {
@@ -77,12 +78,24 @@ void shiftPipeline()
 
 void fetch()
 {
-	if(fscanf(fp, "%[^\n]\n", pipelineCommands[0]) == EOF) {
+	int halted = 0;
+	if(halted == 0) {
+		if(fscanf(fp, "%[^\n]\n", pipelineCommands[0]) == EOF) {
 		//printf("EOF!\n");
 		strncpy(pipelineCommands[0],"00000000",26);
-	} else {
-		printf("Fetch: %s\n",pipelineCommands[0]);
+		char op1buf[9];
+		strncpy(op1buf,pipelineCommands[2]+9,8);
+		buf[9] = (char)0;
+		char op2buf[9];
+		strncpy(op2buf,pipelineCommands[2]+18,8);
+		if(contains)
+		
+	buf[9] = (char)0;
+		} else {
+			printf("Fetch: %s\n",pipelineCommands[0]);
+		}
 	}
+	
 	setInstrLine(strlen(pipelineCommands[0]) + getInstrLine());
 }
 
@@ -201,10 +214,18 @@ void writeBack()
 				char val1[9]; char val2[9];
 				getValAtAddr(atoi(op2buf),val1);
 				setValAtAddr(atoi(op1buf),val1);
-				printf("Register Write Back: Wrote %s to %s\n",val1,op2buf);
+				printf("Register Write Back: Wrote %s to %s\n",val1,op1buf);
+				break;
 			}	
 		
-		
+		case INC:
+			;char valuebuf[9];
+			getValAtAddr(atoi(op1buf),valuebuf);
+			inc(valuebuf);
+			setValAtAddr(atoi(op1buf),valuebuf);
+			printf("Register Write Back: Wrote %s to %s\n",valuebuf,op1buf);
+			break;
+			
 		case L:
 			printf("Load: Writing %s to %s\n",op2buf,op1buf);
 			char val1[9];
@@ -213,6 +234,7 @@ void writeBack()
 			getValAtAddr(atoi(op1buf),val2);
 			val2[8] = "\0";
 			printf("Wrote %s\n",val2);
+			break;
 	}
 	
 	
