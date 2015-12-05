@@ -4,8 +4,12 @@
 #include "math.h"
 
 int instrLine = 0;
-char memoryLookup[256][8] = {"0"};
+char memoryLookup[256][8];
 
+void initMem()
+{
+	memset(memoryLookup,48,sizeof memoryLookup);
+}
 int getInstrLine()
 {
 	return instrLine;

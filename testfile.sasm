@@ -1,3 +1,4 @@
+mov ax,00000001
 mov ax,00000100
 inc ax
 mov bx,00000101

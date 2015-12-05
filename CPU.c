@@ -46,8 +46,7 @@ void inc(char num[9])
 			num[i] = 49;
 			break;
 		}
-	}
-	
+ 	}	
 }
 
 void initCPU(char filename[])
@@ -149,23 +148,69 @@ void execute()
 	}
 }
 
+void memAccess()
+{
+	char buf[8];
+	strncpy(buf,pipelineCommands[3],8);
+	buf[8] = (char)0;	
+	char op1buf[9];
+	strncpy(op1buf,pipelineCommands[3]+9,8);
+	buf[8] = (char)0;
+	char op2buf[9];
+	strncpy(op2buf,pipelineCommands[3]+18,8);
+	buf[8] = (char)0;
+	switch(atoi(buf)) {
+		char val1[9]; 
+		case MOV:
+			//going from reg to mem
+			if(atoi(op1buf) > 11 && atoi(op2buf) < 11) { 
+				getValAtAddr(atoi(op2buf),val1);
+				printf("Memory Access: Wrote %s to %s\n",val1,op1buf);
+				 //going from mem to reg
+			} else if (atoi(op1buf) < 11 && atoi(op2buf) > 11) {
+				getValAtAddr(atoi(op2buf), val1);
+				setValAtAddr(atoi(op1buf),val1);
+				printf("Memory Access: Read value %s\n",val1);
+			}
+			break;
+	}
+}
 
-//simulates one clock cyle
+void writeBack()
+{
+	char buf[8];
+	strncpy(buf,pipelineCommands[4],8);
+	buf[8] = (char)0;	
+	char op1buf[9];
+	strncpy(op1buf,pipelineCommands[4]+9,8);
+	buf[8] = (char)0;
+	char op2buf[9];
+	strncpy(op2buf,pipelineCommands[4]+18,8);
+	buf[8] = (char)0;
+	switch(atoi(buf)) {
+		case MOV:
+			//register to register
+			if(atoi(op1buf) < 11 && atoi(op2buf) < 11) {
+				char val1[9]; char val2[9];
+				getValAtAddr(atoi(op2buf),val1);
+				setValAtAddr(atoi(op1buf),val1);
+				printf("Register Write Back: Wrote %s to %s\n",val1,op2buf);
+			}
+	}
+	
+}
+
+//simulates one clock cyle			
 void executeCycle()
 {
-	/**char test[8] = "00000001";
-	printf("orig %s\n",test);
-	inc(test);
-	printf("final %s\n",test);**/
-	/**int test = 1;
-	printf("init %i\n",test);
-	int res2 = incnum(test);
-	printf("final %i\n",res2);**/
 	//printf("1:%s\n2:%s\n3:%s\n",pipelineCommands[0],pipelineCommands[1],pipelineCommands[2]);
 	fetch();
 	decode();
 	execute();
+	memAccess();
+	writeBack();
 	shiftPipeline();
+
 }
 
 
