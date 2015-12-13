@@ -5,21 +5,26 @@
 
 int instrLine = 0;
 char memoryLookup[256][8];
-char lockedAddr[3][8];
+char lockTable[256][1];
 
-int isLocked()
+int isLocked(int addr)
 {
-	return 0;
+	if(addr < 0 || addr > 257) {
+		return 0;
+	}
+	return lockTable[binToDec(addr)][0];
 }
 
-void setLocked(int addr)
+void setLocked(int addr,int locked)
 {
-	
+	lockTable[binToDec(addr)][0] = (char) 49;
 }
 
 void initMem()
 {
 	memset(memoryLookup,48,sizeof memoryLookup);
+	memset(lockTable,48,sizeof memoryLookup);
+	printf("Memory Initialized\n");
 }
 int getInstrLine()
 {

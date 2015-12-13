@@ -26,7 +26,7 @@
 			(if (string= (subseq input 4 6) (car cell)) 
 				(setq currline (concatenate 'string currline (cdr cell))) #|(print (subseq input 4 6))|#)))
 	;THIRD COLUMN
-	(if (or (string= (subseq input 0 3) "MOV") (string= (subseq input 0 3) "l  ") )
+	(if (or (string= (subseq input 0 3) "MOV") (string= (subseq input 0 3) "L  ") )
 		(setq currline (concatenate 'string currline " " (subseq input 7 15))) ())
 	(if (string= (subseq input 0 3) "CMP")
 		(loop for cell in registers do
