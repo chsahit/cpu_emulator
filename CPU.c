@@ -67,7 +67,7 @@ void initCPU(char filename[])
 	{
 		printf("File IO Error\n");
 	} else {
-		printf("Success, Instructions Loaded\n\n");
+		printf("Success, Instructions Loaded\n");
 	}
 	halted = 0;
 }
@@ -97,7 +97,7 @@ void fetch()
 			strncpy(op2buf,pipelineCommands[0]+18,8);
 			op2buf[8] = (char) 0;
 			//printf("op1 %s\n",op1buf);
-			printf("op2 %s\n",op2buf);
+			//printf("op2 %s\n",op2buf);
 			if(isLocked(atoi(op1buf)) == 49 || (isLocked(atoi(op2buf)) == 49 && strncmp(op2buf,"",1) != 0)) {
 				printf("Fetch: pipeline Hazard Detected!, Loading pipeline w/NOP\n");
 				printf("op1 stat was : %i and and op2 stat was %i, op2 is %i\n",isLocked(atoi(op1buf)),isLocked(atoi(op2buf)),atoi(op2buf));
@@ -127,6 +127,9 @@ void decode()
 	char buf[8];
 	strncpy(buf,pipelineCommands[1],8);
 	buf[8] = (char)0;
+	char op1buf[9];
+	strncpy(op1buf,pipelineCommands[1]+9,8);
+	op1buf[8] = (char)0;
 	
 	switch(atoi(buf)) {
 		case MOV :
@@ -143,6 +146,7 @@ void decode()
 			break;
 		case L : 
 			printf("Decode: %s -> L\n",pipelineCommands[1]);
+			setLocked(atoi(op1buf),49);
 			break;
 		case NOP : 
 			printf("Decode: %s -> NOP\n",pipelineCommands[1]);
@@ -190,7 +194,6 @@ void execute()
 			break;
 		case L:
 			printf("Execute: Load is not completed until WB Locking %s\n",op1buf);
-			setLocked(atoi(op1buf),49);
 			//printf("Execute: Result of lock is %i\n",isLocked(atoi(op1buf)));
 	}
 }

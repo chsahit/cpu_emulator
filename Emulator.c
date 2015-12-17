@@ -5,8 +5,9 @@ int main()
 {
 	initCPU("testfile.sasm.o");
 	initMem();
+	printf("\n");
 	int i;
-	for ( i = 0; i < 15; i = i + 1 ) {
+	for ( i = 0; i < 10; i = i + 1 ) {
 		executeCycle();
 		printf("\n");
 	}

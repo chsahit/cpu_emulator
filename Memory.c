@@ -3,6 +3,8 @@
 #include "string.h"
 #include "math.h"
 
+/**Emulates a hard disk w/ 256 bytes of memory**/
+
 int instrLine = 0;
 char memoryLookup[256][8];
 char lockTable[256][1];
@@ -24,7 +26,7 @@ void initMem()
 {
 	memset(memoryLookup,48,sizeof memoryLookup);
 	memset(lockTable,48,sizeof memoryLookup);
-	printf("Memory Initialized\n");
+	printf("Memory Initialized\n	");
 }
 int getInstrLine()
 {
