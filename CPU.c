@@ -12,6 +12,7 @@ char pipelineCommands[5][27] ;
 FILE *fp;
 int halted;
 char tempComm[27];
+int lnNum;
 enum mnemonics{
 	MOV = 11111111,
 	JMP = 11111110,
@@ -21,25 +22,11 @@ enum mnemonics{
 	NOP = 11111010,
 };
 
-int incnum(int num)
+void readLn(char buf[27])
 {
-	int initnum = num;
-	float res = 0;
-	float buf = 0;
-	int i;
-	for (i = 0; i < 8 ; i++) {
-		int dig = initnum%10;
-		if(dig == 1) {
-			buf = buf + pow(10,i);
-		} else {
-			res = num - buf;
-			res = res + pow(10,i);
-			break;
-		}
-		initnum = initnum/10;
-	}
-	return (int)res;
-	
+	fread(buf,27,1,fp);
+	//buf[27] = (char)0;
+	//printf(buf);
 }
 
 void inc(char num[9])
@@ -60,8 +47,7 @@ void initCPU(char filename[])
 	//pipelineCommands = (char) malloc(5 * sizeof(char));
 	//for(int i = 0; i < 6; i++) {
 	//	pipelineCommands[i] = malloc(26 * sizeof(char));
-	//}
-	printf("CPU Loaded\n");
+	//
 	fp = fopen(filename,"r");
 	if(fp == NULL)
 	{
@@ -70,6 +56,8 @@ void initCPU(char filename[])
 		printf("Success, Instructions Loaded\n");
 	}
 	halted = 0;
+	lnNum = 0;
+	printf("CPU Loaded\n");
 }
 
 
@@ -85,7 +73,11 @@ void shiftPipeline()
 void fetch()
 {
 	if(halted == 0) {
-		if(fscanf(fp, "%[^\n]\n", pipelineCommands[0]) == EOF) {
+		readLn(pipelineCommands[0]);
+		fseek(fp,27,lnNum);
+		lnNum = lnNum + 27;
+		/**fscanf(fp, "%[^\n]\n", pipelineCommands[0])**/
+		if(EOF != EOF) {
 		//printf("EOF!\n");
 		} else {
 			char mnemonicbuf[9];

@@ -7,7 +7,7 @@ int main()
 	initMem();
 	printf("\n");
 	int i;
-	for ( i = 0; i < 10; i = i + 1 ) {
+	for ( i = 0; i < 25; i = i + 1 ) {
 		executeCycle();
 		printf("\n");
 	}
