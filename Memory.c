@@ -26,7 +26,7 @@ void initMem()
 {
 	memset(memoryLookup,48,sizeof memoryLookup);
 	memset(lockTable,48,sizeof memoryLookup);
-	printf("Memory Initialized\n	");
+	printf("Memory Initialized\n");
 }
 int getInstrLine()
 {

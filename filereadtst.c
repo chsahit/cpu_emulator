@@ -16,11 +16,18 @@ int main()
 	int index = 0;
 	int i;
 	
-	for(i = 0; i < 4; i++) {
+	for(i = 0; i < 3; i++) {
 		readExp(line);
 		fseek(fp,27,index);
 		index = index + 27;
 	}
+	index = 0;
+	readExp(line);
+	fseek(fp,27,index);
+	readExp(line);
+	fseek(fp,27,index);
+	
+	
 	return 0;
 }
 

@@ -13,9 +13,11 @@ FILE *fp;
 int halted;
 char tempComm[27];
 int lnNum;
+int terminated = 0;
+int ZF = 0;
 enum mnemonics{
 	MOV = 11111111,
-	JMP = 11111110,
+	JNE = 11111110,
 	CMP = 11111101,
 	INC = 11111100,
 	L   = 11111011,
@@ -24,8 +26,9 @@ enum mnemonics{
 
 void readLn(char buf[27])
 {
+	memset(buf,(char)0,sizeof buf);
 	fread(buf,27,1,fp);
-	//buf[27] = (char)0;
+	buf[26] = (char)0;
 	//printf(buf);
 }
 
@@ -76,10 +79,19 @@ void fetch()
 		readLn(pipelineCommands[0]);
 		fseek(fp,27,lnNum);
 		lnNum = lnNum + 27;
+		if(strncmp(pipelineCommands[0],"",1) == 0) {
+			printf("null fetch\n");
+			strncpy(pipelineCommands[0],"00000000 11111111 11111111",27);
+		}
+		//printf("ln is %i\n",lnNum);
 		/**fscanf(fp, "%[^\n]\n", pipelineCommands[0])**/
-		if(EOF != EOF) {
-		//printf("EOF!\n");
+		if(EOF != EOF)  {
+			printf("EOF!\n");
+			//terminated++;
 		} else {
+			//if(feof(fp)) {
+			//	memset(pipelineCommands[0],(char)0,sizeof pipelineCommands[0]);
+			//}
 			char mnemonicbuf[9];
 			strncpy(mnemonicbuf,pipelineCommands[0],8);
 			char op1buf[9];
@@ -92,15 +104,16 @@ void fetch()
 			//printf("op2 %s\n",op2buf);
 			if(isLocked(atoi(op1buf)) == 49 || (isLocked(atoi(op2buf)) == 49 && strncmp(op2buf,"",1) != 0)) {
 				printf("Fetch: pipeline Hazard Detected!, Loading pipeline w/NOP\n");
-				printf("op1 stat was : %i and and op2 stat was %i, op2 is %i\n",isLocked(atoi(op1buf)),isLocked(atoi(op2buf)),atoi(op2buf));
+				//printf("op1 stat was : %i and and op2 stat was %i, op2 is %i\n",isLocked(atoi(op1buf)),isLocked(atoi(op2buf)),atoi(op2buf));
+				printf("Fetch: stashing %s\n",pipelineCommands[0]);
 				strncpy(tempComm,pipelineCommands[0],27);
-				strncpy(pipelineCommands[0],"11111010 00000000",16); 
+				strncpy(pipelineCommands[0],"11111010 00000000",17); 
 				halted = 1;
 			}
 			printf("Fetch: %s\n",pipelineCommands[0]);
 		}
 	} else if (halted == 1) {
-		strncpy(pipelineCommands[0],"11111010 00000000",16);
+		strncpy(pipelineCommands[0],"11111010 00000000",17);
 		halted = 2;
 		printf("Fetch: Loading second NOP into pipeline\n");
 	} else if (halted == 2) {
@@ -127,8 +140,8 @@ void decode()
 		case MOV :
 			printf("Decode: %s -> MOV\n",pipelineCommands[1]);
 			break;
-		case JMP :
-			printf("Decode: %s -> JMP\n",pipelineCommands[1]);
+		case JNE :
+			printf("Decode: %s -> JNE\n",pipelineCommands[1]);
 			break;
 		case CMP : 
 			printf("Decode: %s -> CMP\n",pipelineCommands[1]);
@@ -161,8 +174,15 @@ void execute()
 		case MOV :
 			printf("Execute: mov statement, nothing to execute! Locking %s\n",op1buf);
 			break;
-		case JMP :
-			printf("Execute: updating PSW, loading decode with NOP to flush out the pipeline\n");
+		case JNE :
+			if(ZF == 0) {
+				lnNum = 27 * atoi(op1buf) - 27;
+				//fseek(fp,27,lnNum);
+				terminated = 0;
+				printf("Execute: updating index to %i\n",lnNum);
+			} else {
+				printf("Execute: Not Jumping because ZF is 1\n");
+			}
 			break;
 		case CMP :
 			;char value1buf[9];
@@ -172,9 +192,11 @@ void execute()
 			if(strncmp(value1buf,value2buf,8) == 0) {
 				printf("Execute: Compare returned true, setting ZF to 1\n");
 				//printf("Execute: %s %s\n",value1buf,value2buf);
+				ZF = 1;
 			} else {
 				printf("Execute: Compare returned false, setting ZF to 0\n");
 				//printf("Execute: %s %s\n",value1buf,value2buf);
+				ZF = 0;
 			}
 			break;
 		case INC : 
@@ -256,6 +278,7 @@ void writeBack()
 			getValAtAddr(atoi(op1buf),val2);
 			val2[9] = (char)0;
 			printf("Register Write Back: Wrote %s\n",val2);
+			setLocked(atoi(op1buf),48);
 			break;	
 	}
 	
@@ -267,13 +290,16 @@ void writeBack()
 void executeCycle()
 {
 	//printf("1:%s\n2:%s\n3:%s\n",pipelineCommands[0],pipelineCommands[1],pipelineCommands[2]);
-	writeBack();
-	memAccess();
-	execute();
-	decode();
-	fetch();	
-	shiftPipeline();
-
+	if(terminated < 4) {
+		writeBack();
+		memAccess();
+		execute();
+		decode();
+		fetch();	
+		shiftPipeline();
+	} else {
+		printf("Empty Cycle");
+	}
 }
 
 
