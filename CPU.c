@@ -4,17 +4,16 @@
 #include "string.h"
 #include "math.h"
 
-//TODO offending command must be somewhere in that cycle
 
 //along the 5 rows are the commands being executed by each stage in the pipeline
 //the commands are stored as chars in the columns
 char pipelineCommands[5][27] ;
-FILE *fp;
-int halted;
-char tempComm[27];
-int lnNum;
-int terminated = 0;
-int ZF = 0;
+FILE *fp; //input file
+int halted; //flag for if there was a pipeline hazard
+char tempComm[27]; //buffer for offending instruction in case there was a p. hazard
+int lnNum; //index w/location in the input file 
+int terminated = 0; //flag for if the program is done executing
+int ZF = 0; //ZF, written to by CMP and acted on by JMP
 enum mnemonics{
 	MOV = 11111111,
 	JNE = 11111110,
@@ -24,6 +23,7 @@ enum mnemonics{
 	NOP = 11111010,
 };
 
+//get one instruction from the file and write it to buf
 void readLn(char buf[27])
 {
 	memset(buf,(char)0,sizeof buf);
@@ -32,6 +32,8 @@ void readLn(char buf[27])
 	//printf(buf);
 }
 
+//add 1 to the binary number stored in num[]
+//simulates num XOR 1
 void inc(char num[9])
 {
 	int i;
@@ -45,12 +47,9 @@ void inc(char num[9])
  	}	
 }
 
+//opens file for reading and initializes flags
 void initCPU(char filename[])
 {
-	//pipelineCommands = (char) malloc(5 * sizeof(char));
-	//for(int i = 0; i < 6; i++) {
-	//	pipelineCommands[i] = malloc(26 * sizeof(char));
-	//
 	fp = fopen(filename,"r");
 	if(fp == NULL)
 	{
@@ -73,25 +72,22 @@ void shiftPipeline()
 	strncpy(pipelineCommands[1],pipelineCommands[0],27);
 }
 
+//fetch an instruction and check if it is safe to run
+//if it is, load it into the pipeline
 void fetch()
 {
-	if(halted == 0) {
+	if(halted == 0) { 
 		readLn(pipelineCommands[0]);
 		fseek(fp,27,lnNum);
 		lnNum = lnNum + 27;
 		if(strncmp(pipelineCommands[0],"",1) == 0) {
-			printf("null fetch\n");
-			strncpy(pipelineCommands[0],"00000000 11111111 11111111",27);
+			printf("Fetch:null\n");
+			strncpy(pipelineCommands[0],"11111010 11111111 11111111",27);
 		}
-		//printf("ln is %i\n",lnNum);
-		/**fscanf(fp, "%[^\n]\n", pipelineCommands[0])**/
 		if(EOF != EOF)  {
 			printf("EOF!\n");
 			//terminated++;
 		} else {
-			//if(feof(fp)) {
-			//	memset(pipelineCommands[0],(char)0,sizeof pipelineCommands[0]);
-			//}
 			char mnemonicbuf[9];
 			strncpy(mnemonicbuf,pipelineCommands[0],8);
 			char op1buf[9];
@@ -100,11 +96,8 @@ void fetch()
 			op1buf[8] = (char) 0;
 			strncpy(op2buf,pipelineCommands[0]+18,8);
 			op2buf[8] = (char) 0;
-			//printf("op1 %s\n",op1buf);
-			//printf("op2 %s\n",op2buf);
 			if(isLocked(atoi(op1buf)) == 49 || (isLocked(atoi(op2buf)) == 49 && strncmp(op2buf,"",1) != 0)) {
 				printf("Fetch: pipeline Hazard Detected!, Loading pipeline w/NOP\n");
-				//printf("op1 stat was : %i and and op2 stat was %i, op2 is %i\n",isLocked(atoi(op1buf)),isLocked(atoi(op2buf)),atoi(op2buf));
 				printf("Fetch: stashing %s\n",pipelineCommands[0]);
 				strncpy(tempComm,pipelineCommands[0],27);
 				strncpy(pipelineCommands[0],"11111010 00000000",17); 
@@ -121,8 +114,6 @@ void fetch()
 		strncpy(pipelineCommands[0],tempComm,27);
 		halted = 0;
 	}
-	
-	setInstrLine(strlen(pipelineCommands[0]) + getInstrLine());
 }
 
 void decode()
@@ -158,6 +149,7 @@ void decode()
 	}
 }	
 
+//execute stage of the pipeline. does things the ALU would do, i.e math
 void execute()
 {
 	char buf[8];
@@ -175,9 +167,8 @@ void execute()
 			printf("Execute: mov statement, nothing to execute! Locking %s\n",op1buf);
 			break;
 		case JNE :
-			if(ZF == 0) {
-				lnNum = 27 * atoi(op1buf) - 27;
-				//fseek(fp,27,lnNum);
+			if(ZF == 0) { //look for the val of the ZF
+				lnNum = 27 * atoi(op1buf) - 27; //compute the new character location
 				terminated = 0;
 				printf("Execute: updating index to %i\n",lnNum);
 			} else {
@@ -191,11 +182,9 @@ void execute()
 			getValAtAddr(atoi(op2buf),value2buf);
 			if(strncmp(value1buf,value2buf,8) == 0) {
 				printf("Execute: Compare returned true, setting ZF to 1\n");
-				//printf("Execute: %s %s\n",value1buf,value2buf);
 				ZF = 1;
 			} else {
 				printf("Execute: Compare returned false, setting ZF to 0\n");
-				//printf("Execute: %s %s\n",value1buf,value2buf);
 				ZF = 0;
 			}
 			break;
@@ -208,10 +197,10 @@ void execute()
 			break;
 		case L:
 			printf("Execute: Load is not completed until WB Locking %s\n",op1buf);
-			//printf("Execute: Result of lock is %i\n",isLocked(atoi(op1buf)));
 	}
 }
 
+//does memory reads if necessary
 void memAccess()
 {
 	char buf[8];
@@ -289,7 +278,6 @@ void writeBack()
 //simulates one clock cyle			
 void executeCycle()
 {
-	//printf("1:%s\n2:%s\n3:%s\n",pipelineCommands[0],pipelineCommands[1],pipelineCommands[2]);
 	if(terminated < 4) {
 		writeBack();
 		memAccess();

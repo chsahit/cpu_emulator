@@ -21,7 +21,7 @@
 			(setq currline (concatenate 'string (cdr cell) " "))())) ;if so add the appropriate byte code to "parsed"		
 	;SECOND COLUMN
 	(if (string= (subseq input 0 3) "JNE") 
-		(setq currline (concatenate 'string currline (subseq input 4 (- (length input) 1)))) 
+		(setq currline (concatenate 'string currline (subseq input 4 (- (length input) 2)))) 
 		(loop for cell in registers do
 			(if (string= (subseq input 4 6) (car cell)) 
 				(setq currline (concatenate 'string currline (cdr cell))) #|(print (subseq input 4 6))|#)))
@@ -32,6 +32,8 @@
 		(loop for cell in registers do
 			(if (string= (subseq input 7 9) (car cell)) 
 				(setq currline (concatenate 'string currline " " (cdr cell))) ())))
+	(if (or (string= (subseq input 0 3) "JNE") (string= (subseq input 0 3) "INC")) 
+		(setq currline (concatenate 'string currline " 11111111")) ())
 	(setq parsed (push currline parsed))
 	(setq currline nil)
 ) 
