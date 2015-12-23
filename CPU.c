@@ -12,7 +12,6 @@ FILE *fp; //input file
 int halted; //flag for if there was a pipeline hazard
 char tempComm[27]; //buffer for offending instruction in case there was a p. hazard
 int lnNum; //index w/location in the input file 
-int terminated = 0; //flag for if the program is done executing
 int ZF = 0; //ZF, written to by CMP and acted on by JMP
 enum mnemonics{
 	MOV = 11111111,
@@ -277,16 +276,12 @@ void writeBack()
 //simulates one clock cyle			
 void executeCycle()
 {
-	if(terminated < 4) {
-		writeBack();
-		memAccess();
-		execute();
-		decode();
-		fetch();	
-		shiftPipeline();
-	} else {
-		printf("Empty Cycle");
-	}
+	writeBack();
+	memAccess();
+	execute();
+	decode();
+	fetch();	
+	shiftPipeline();
 }
 
 

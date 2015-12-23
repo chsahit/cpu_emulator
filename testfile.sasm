@@ -4,4 +4,5 @@ INC ax
 CMP ax,bx
 JNE 00000001 
 NOP 
-L   cx,00000001
+NOP
+L   cx,00000010
