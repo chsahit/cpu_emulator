@@ -169,7 +169,6 @@ void execute()
 		case JNE :
 			if(ZF == 0) { //look for the val of the ZF
 				lnNum = 27 * atoi(op1buf) - 27; //compute the new character location
-				terminated = 0;
 				printf("Execute: updating index to %i\n",lnNum);
 			} else {
 				printf("Execute: Not Jumping because ZF is 1\n");

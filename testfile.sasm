@@ -1,5 +1,7 @@
 L   ax,00000000
-L   bx,00000001
+L   bx,00000010
 INC ax
 CMP ax,bx
 JNE 00000001 
+NOP 
+L   cx,00000001
